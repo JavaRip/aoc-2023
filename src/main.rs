@@ -1,31 +1,58 @@
+use regex::Regex;
+
 fn main() {
     let example_input: String = get_example_input();
     let puzzle_input: String = get_puzzle_input();
+    let part_two_example_input: String = get_part_two_example_input();
 
-    let example_answer = solve(example_input);
+    let example_answer = solve(&example_input);
     println!("example answer: {}", example_answer);
 
-    let real_answer = solve(puzzle_input);
+    let real_answer = solve(&puzzle_input);
     println!("real answer: {}", real_answer);
+
+    let part_two_example_answer = solve(&part_two_example_input);
+    println!("part two example answer: {}", part_two_example_answer);
+
+    let part_two_real_answer = solve(&puzzle_input);
+    println!("part two real answer: {}", part_two_real_answer);
 }
 
-fn solve(input: String) -> i32 {
+fn solve(input: &str) -> i32 {
+    let number_word_patterns: Vec<String> = vec![
+        "one".to_string(),
+        "two".to_string(),
+        "three".to_string(),
+        "four".to_string(),
+        "five".to_string(),
+        "six".to_string(),
+        "seven".to_string(),
+        "eight".to_string(),
+        "nine".to_string(),
+    ];
+
     let mut ret_val = 0;
 
     for line in input.split("\n") {
-        let first_digit_res = get_first_digit(&line);
-        let last_digit_res = get_last_digit(&line);
+        let first_digit_res = get_first_digit(&line, &number_word_patterns);
+        let last_digit_res = get_last_digit(&line, &number_word_patterns);
 
         let first_digit = match first_digit_res {
-            Ok(digit) => digit,
+            Ok(digit) => {
+                digit
+            }
             Err(_) => {
+                println!("first digit not found: {}", line);
                 continue;
             }
         };
 
         let last_digit = match last_digit_res {
-            Ok(digit) => digit,
+            Ok(digit) => {
+                digit
+            }
             Err(_) => {
+                println!("last digit not found {}", line);
                 continue;
             }
         };
@@ -36,6 +63,7 @@ fn solve(input: String) -> i32 {
         let line_value_int = match line_value_int_res {
             Ok(value) => value,
             Err(_) => {
+                println!("line value int parse error");
                 continue;
             }
         };
@@ -46,30 +74,105 @@ fn solve(input: String) -> i32 {
     ret_val
 }
 
-fn get_first_digit(line: &str) -> Result<char, String> {
+fn get_first_digit(line: &str, number_word_patterns: &Vec<String>) -> Result<char, String> {
+    // look for character digit
+
+    let mut matched_nums: Vec<String> = vec![];
     for c in line.chars() {
         match c {
-            '0'..='9' => {
-                return Ok(c);
+            '1'..='9' => {
+                matched_nums.push(c.to_string());
             }
             _ => {}
         }
     }
 
-    Err("No digit found".to_string())
+    // if not found look for word digit
+
+    for pattern in number_word_patterns {
+        let re = Regex::new(&pattern).unwrap();
+
+        if re.is_match(line) {
+            matched_nums.push(pattern.to_string());
+        }
+    }
+
+    // from matched word numbers, find which one came first
+    let mut lowest_index = f64::INFINITY;
+    let mut digit: &str = "";
+
+    for num in &matched_nums {
+        let index = line.find(num).unwrap() as f64;
+
+        if lowest_index > index {
+            lowest_index = index;
+            digit = num;
+        }
+    }
+
+    word_to_num(digit)
 }
 
-fn get_last_digit(line: &str) -> Result<char, String> {
+fn get_last_digit(line: &str, number_word_patterns: &Vec<String>) -> Result<char, String> {
+    let mut matched_nums: Vec<String> = vec![];
+
     for c in line.chars().rev() {
         match c {
-            '0'..='9' => {
-                return Ok(c);
+            '1'..='9' => {
+                matched_nums.push(c.to_string());
             }
             _ => {}
         }
     }
 
-    Err("No digit found".to_string())
+    // if not found look for word digit
+
+    for pattern in number_word_patterns {
+        let re = Regex::new(&pattern).unwrap();
+
+        if re.is_match(line) {
+            matched_nums.push(pattern.to_string());
+        }
+    }
+
+    // from matched word numbers, find which one came first
+    let mut highest_index: f64 = -1.0;
+    let mut digit: &str = "";
+
+    for num in &matched_nums {
+        let index = line.rfind(num).unwrap() as f64;
+
+        if highest_index < index {
+            highest_index = index;
+            digit = num;
+        }
+    }
+
+    word_to_num(digit)
+}
+
+fn word_to_num(word: &str) -> Result<char, String> {
+    match word {
+        "one" => Ok('1'),
+        "two" => Ok('2'),
+        "three" => Ok('3'),
+        "four" => Ok('4'),
+        "five" => Ok('5'),
+        "six" => Ok('6'),
+        "seven" => Ok('7'),
+        "eight" => Ok('8'),
+        "nine" => Ok('9'),
+        "1" => Ok('1'),
+        "2" => Ok('2'),
+        "3" => Ok('3'),
+        "4" => Ok('4'),
+        "5" => Ok('5'),
+        "6" => Ok('6'),
+        "7" => Ok('7'),
+        "8" => Ok('8'),
+        "9" => Ok('9'),
+        _ => Err("No digit found".to_string()),
+    }
 }
 
 
@@ -78,6 +181,16 @@ fn get_example_input() -> String {
 pqr3stu8vwx
 a1b2c3d4e5f
 treb7uchet".to_string()
+}
+
+fn get_part_two_example_input() -> String {
+    "two1nine
+eightwothree
+abcone2threexyz
+xtwone3four
+4nineeightseven2
+zoneight234
+7pqrstsixteen".to_string()
 }
 
 fn get_puzzle_input() -> String {
