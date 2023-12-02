@@ -1,13 +1,11 @@
 use std::{fs, collections::HashMap};
 
 pub fn main() {
-    println!("Hello from day two!");
-
-    println!("------------ Example ------------");
+    println!("------------ Part One Example ------------");
     let example_input = fs::read_to_string("src/inputs/day_two_example.txt")
         .expect("Failed to read file");
 
-    let example_answer = solve(example_input);
+    let example_answer = solve(&example_input);
     println!("Example answer: {}", example_answer);
 
     println!("------------ Part One ------------");
@@ -15,11 +13,71 @@ pub fn main() {
     let input = fs::read_to_string("src/inputs/day_two.txt")
         .expect("Failed to read file");
 
-    let answer = solve(input);
+    let answer = solve(&input);
     println!("Answer: {}", answer);
+
+    println!("------------ Part Two Example ------------");
+
+    let part_two_example_answer = solve_two(&example_input);
+    println!("Part Two Example Answer: {}", part_two_example_answer);
+
+    println!("------------ Part Two ------------");
+
+    let part_two_answer = solve_two(&input);
+    println!("Part Two Answer: {}", part_two_answer);
 }
 
-fn solve(input: String) -> i32 {
+fn solve_two(input: &str) -> i32 {
+    let mut ret_val = 0;
+
+    for line in input.split('\n') {
+        let draws = line.split(':').nth(1).unwrap();
+        let draws = draws.trim_start().trim_end();
+
+        let mut min_red = 0;
+        let mut min_green = 0;
+        let mut min_blue = 0;
+
+        for draw in draws.split(';') {
+            let draw_trim = draw.trim_start().trim_end();
+
+            for dice in draw_trim.split(',') {
+                let dice_trim = dice.trim_start().trim_end();
+
+                let count = dice_trim.split(' ').nth(0).unwrap();
+                let color = dice_trim.split(' ').nth(1).unwrap();
+
+                match color {
+                    "red" => {
+                        if count.parse::<i32>().unwrap() > min_red {
+                            min_red = count.parse::<i32>().unwrap();
+                        }
+                    },
+                    "green" => {
+                        if count.parse::<i32>().unwrap() > min_green {
+                            min_green = count.parse::<i32>().unwrap();
+                        }
+                    },
+                    "blue" => {
+                        if count.parse::<i32>().unwrap() > min_blue {
+                            min_blue = count.parse::<i32>().unwrap();
+                        }
+                    },
+                    _ => {
+                        println!("Error: color {} not found in bag", color);
+                        return 0;
+                    },
+                }
+            }
+        }
+
+        ret_val = ret_val + (min_red * min_green * min_blue);
+    }
+
+    return ret_val;
+}
+
+fn solve(input: &str) -> i32 {
     let mut ret_val = 0;
     // set bag contents
     let bag_contents = HashMap::from([
@@ -214,7 +272,7 @@ fn test_solve_example() {
     let example_input = fs::read_to_string("src/inputs/day_two_example.txt")
         .expect("Failed to read file");
 
-    assert_eq!(solve(example_input), 8);
+    assert_eq!(solve(&example_input), 8);
 }
 
 #[test]
@@ -222,5 +280,21 @@ fn test_part_one() {
     let input = fs::read_to_string("src/inputs/day_two.txt")
         .expect("Failed to read file");
 
-    assert_eq!(solve(input), 2406);
+    assert_eq!(solve(&input), 2406);
+}
+
+#[test]
+fn test_part_two_example() {
+    let input = fs::read_to_string("src/inputs/day_two_example.txt")
+        .expect("Failed to read file");
+
+    assert_eq!(solve_two(&input), 2286);
+}
+
+#[test]
+fn test_part_two() {
+    let input = fs::read_to_string("src/inputs/day_two.txt")
+        .expect("Failed to read file");
+
+    assert_eq!(solve_two(&input), 78375);
 }
