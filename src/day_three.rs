@@ -68,7 +68,7 @@ fn part_two(input: &str) -> i32 {
             ret_val = ret_val + gear_ratio;
         }
     }
-    println!("ret_val: {}", ret_val);
+
     ret_val
 }
 
