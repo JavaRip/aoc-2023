@@ -21,14 +21,55 @@ pub fn main() {
     let part_two_example_answer = part_two(&example_input);
     println!("Part Two Example Answer: {}", part_two_example_answer);
 
-    // println!("------------ Part Two ------------");
+    println!("------------ Part Two ------------");
 
-    // let part_two_answer = solve_two(&input);
-    // println!("Part Two Answer: {}", part_two_answer);
+    let part_two_answer = part_two(&input);
+    println!("Part Two Answer: {}", part_two_answer);
 }
 
 fn part_two(input: &str) -> i32 {
-    0
+    let num_cols = get_num_cols(&input);
+    let input_arr = get_input_arr(&input);
+    let mut ret_val = 0;
+
+    for (i, c) in input_arr.iter().enumerate() {
+        // if c is not special char, continue
+        if c != &'*' {
+            continue;
+        }
+
+        let dir_indexes = get_dir_indexes(i as i32, num_cols as i32);
+        let mut adj_numbers: BTreeMap<i32, i32> = BTreeMap::new();
+
+        for dir_index in dir_indexes {
+            if valid_cell(&input_arr, dir_index) == false {
+                continue;
+            }
+
+            if input_arr[dir_index as usize].is_numeric() {
+                let found_number = scan_number(
+                    &input_arr,
+                    dir_index,
+                    num_cols as usize,
+                );
+
+                for (&key, &value) in &found_number {
+                    adj_numbers.insert(key, value);
+                }
+            }
+        }
+
+        if adj_numbers.len() == 2 {
+            let mut gear_ratio = 1;
+            for &value in adj_numbers.values() {
+                gear_ratio = gear_ratio * value;
+            }
+
+            ret_val = ret_val + gear_ratio;
+        }
+    }
+    println!("ret_val: {}", ret_val);
+    ret_val
 }
 
 fn part_one(input: &str) -> i32 {
@@ -40,7 +81,9 @@ fn part_one(input: &str) -> i32 {
         // if c is not special char, continue
         if c.is_numeric() {
             continue;
-        } else if c == &'.' {
+        }
+
+        if c == &'.' {
             continue;
         }
 
