@@ -16,15 +16,15 @@ pub fn main() {
     let answer = part_one(&input);
     println!("Answer: {}", answer);
 
-    // println!("------------ Part Two Example ------------");
+    println!("------------ Part Two Example ------------");
 
-    // let part_two_example_answer = part_two(&example_input);
-    // println!("Part Two Example Answer: {}", part_two_example_answer);
+    let part_two_example_answer = part_two(&example_input);
+    println!("Part Two Example Answer: {}", part_two_example_answer);
 
-    // println!("------------ Part Two ------------");
+    println!("------------ Part Two ------------");
 
-    // let part_two_answer = part_two(&input);
-    // println!("Part Two Answer: {}", part_two_answer);
+    let part_two_answer = part_two(&input);
+    println!("Part Two Answer: {}", part_two_answer);
 }
 
 #[derive(Debug)]
@@ -34,8 +34,58 @@ struct MapEntry {
     range: i64,
 }
 
+fn part_two(input: &str) -> i64 {
+    let seeds = &get_seeds(&input);
+    let maps = get_maps(&input);
+
+    let mut lowest = std::f64::INFINITY;
+
+    for (i, seed) in seeds.iter().enumerate() {
+        if i % 2 == 1 {
+            continue;
+        }
+
+        println!("seed i: {} of {}", i, seeds.len());
+
+        let range = seeds[i + 1];
+
+        for j in 0..range {
+            let expanded_seed = seed + j;
+            let destination = get_seed_destination(&expanded_seed, &maps);
+
+            if destination < lowest as i64 {
+                lowest = destination as f64;
+            };
+        }
+    }
+
+    // return lowest value in destinations
+    lowest as i64
+
+}
+
 fn part_one(input: &str) -> i64 {
     // get vec of seeds
+    let seeds = get_seeds(&input);
+
+    // get vec of maps
+    let maps = get_maps(&input);
+
+    let mut lowest = std::f64::INFINITY;
+
+    for seed in seeds {
+        let destination = get_seed_destination(&seed, &maps);
+
+        if destination < lowest as i64 {
+            lowest = destination as f64;
+        };
+    }
+
+    // return lowest value in destinations
+    lowest as i64
+}
+
+fn get_seeds(input: &str) -> Vec<i64> {
     let seed_strs = input
         .lines()
         .collect::<Vec<&str>>()[0]
@@ -59,7 +109,10 @@ fn part_one(input: &str) -> i64 {
         seeds.push(seed);
     }
 
-    // get vec of maps
+    seeds
+}
+
+fn get_maps(input: &str) -> Vec<Vec<MapEntry>> {
     let mut maps: Vec<Vec<MapEntry>> = Vec::new();
     for (i, map) in input.split("\n\n").enumerate() {
         if i == 0 {
@@ -69,28 +122,23 @@ fn part_one(input: &str) -> i64 {
         maps.push(parse_map(map));
     }
 
-    let mut destinations: Vec<i64> = Vec::new();
+    maps
+}
 
-    for seed in seeds {
-        let mut buffer = seed;
+fn get_seed_destination(seed: &i64, maps: &Vec<Vec<MapEntry>>) -> i64 {
+    let mut buffer = *seed;
 
-        for map in maps.iter() {
-            for map_entry in map.iter() {
-                if buffer >= map_entry.src && buffer < map_entry.src + map_entry.range {
-                    buffer = buffer + map_entry.dest - map_entry.src;
-                    break;
-                }
-
+    for map in maps.iter() {
+        for map_entry in map.iter() {
+            if buffer >= map_entry.src && buffer < map_entry.src + map_entry.range {
+                buffer = buffer + map_entry.dest - map_entry.src;
+                break;
             }
+
         }
-        destinations.push(buffer);
     }
 
-    // return lowest value in destinations
-    match destinations.iter().min() {
-        Some(n) => return *n,
-        None => return -1,
-    }
+    buffer
 }
 
 fn parse_map(raw_map: &str) -> Vec<MapEntry> {
@@ -142,9 +190,6 @@ fn parse_map(raw_map: &str) -> Vec<MapEntry> {
     return map_entries;
 }
 
-// fn part_two(input: &str) -> i64 {
-// }
-
 #[test]
 fn test_part_one_example() {
     let example_input = fs::read_to_string("src/inputs/day_five_example.txt")
@@ -153,21 +198,21 @@ fn test_part_one_example() {
     assert_eq!(part_one(&example_input), 35);
 }
 
-// #[test]
-// fn test_part_one() {
-//     let input = fs::read_to_string("src/inputs/day_five.txt")
-//         .expect("Failed to read file");
+#[test]
+fn test_part_one() {
+    let input = fs::read_to_string("src/inputs/day_five.txt")
+        .expect("Failed to read file");
 
-//     assert_eq!(part_one(&input), 25010);
-// }
+    assert_eq!(part_one(&input), 331445006);
+}
 
-// #[test]
-// fn test_part_two_example() {
-//     let example_input = fs::read_to_string("src/inputs/day_five_example.txt")
-//         .expect("Failed to read file");
+#[test]
+fn test_part_two_example() {
+    let example_input = fs::read_to_string("src/inputs/day_five_example.txt")
+        .expect("Failed to read file");
 
-//     assert_eq!(part_two(&example_input), 30);
-// }
+    assert_eq!(part_two(&example_input), 46);
+}
 
 // #[test]
 // fn test_part_two() {
