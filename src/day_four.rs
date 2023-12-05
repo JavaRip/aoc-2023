@@ -1,7 +1,6 @@
 use std::fs;
 
 pub fn main() {
-    println!("Day Four");
     println!("------------ Part One Example ------------");
     let example_input = fs::read_to_string("src/inputs/day_four_example.txt")
         .expect("Failed to read file");
@@ -45,7 +44,7 @@ fn get_winning_cards(base_cards: &Vec<&str>, input_arr: &Vec<&str>, mut total_ca
 
     let mut won_cards: Vec<&str> = Vec::new();
 
-    for (i, line) in input_arr.iter().enumerate() {
+    for line in input_arr {
         let winning_count_res = get_winning_count(line);
 
         let winning_count = match winning_count_res {
@@ -210,4 +209,12 @@ fn test_part_two_example() {
         .expect("Failed to read file");
 
     assert_eq!(part_two(&example_input), 30);
+}
+
+#[test]
+fn test_part_two() {
+    let input = fs::read_to_string("src/inputs/day_four.txt")
+        .expect("Failed to read file");
+
+    assert_eq!(part_two(&input), 9924412);
 }
