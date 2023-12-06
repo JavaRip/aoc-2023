@@ -61,16 +61,13 @@ fn part_two(input: &str) -> i64 {
     println!("{}", time);
     println!("{}", dist_to_win);
 
-    0
+    part_one(&format!("Time: {}\nDistance: {}", time, dist_to_win))
 }
 
 fn get_distance(hold_time: i64, race_duration: i64) -> i64 {
     let run_time = race_duration - hold_time;
 
-    let mut distance = 0;
-    for _i in 0..run_time {
-        distance += hold_time;
-    }
+    let mut distance = hold_time * run_time;
 
     distance
 }
