@@ -3,6 +3,7 @@ mod day_two;
 mod day_three;
 mod day_four;
 mod day_five;
+mod day_six;
 
 fn main() {
     // println!("============ Day One ============");
@@ -13,6 +14,8 @@ fn main() {
     // day_three::main();
     // println!("============ Day Four ============");
     // day_four::main();
-    println!("============ Day Five ============");
-    day_five::main();
+    // println!("============ Day Five ============");
+    // day_five::main();
+    println!("============ Day Six ============");
+    day_six::main();
 }
